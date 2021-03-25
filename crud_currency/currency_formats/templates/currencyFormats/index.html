@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>CRUD</title>
+</head>
+
+<body>
+  {% if currency_list %}
+  <ul>
+    {% for currency in currency_list %}
+    <li><a href="/currencyFormats/{{ currency.id }}/">{{ currency.country_name }}</a></li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>No currencies are available.</p>
+  {% endif %}
+
+</body>
+
+</html>

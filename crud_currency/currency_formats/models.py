@@ -8,14 +8,25 @@ class Country(models.Model):
     country_currency = models.CharField(max_length=50)
     country_code = models.CharField(max_length=4)
 
+    class Meta:
+        ordering = ['country_name']
+
+    def __str__(self):
+        return self.country_name
+
 
 class CurrencyFormat(models.Model):
     display_simbol = models.BooleanField(default=False)
     currency_before = models.BooleanField(default=False)
     show_cents = models.BooleanField(default=False)
-    dot_delimiter = models.BooleanField(default=False)
+    thousand_delimiter = models.CharField(max_length=50)
+    decimal_delimiter = models.CharField(max_length=50)
     country_name = models.CharField(max_length=50)
     country_currency = models.CharField(max_length=50)
+    symbol = models.CharField(max_length=4)
+
+    def __str__(self):
+        return self.country_name + '-' + self.country_name
 
 
 class Advertise(models.Model):
