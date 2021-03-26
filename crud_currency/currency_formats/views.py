@@ -19,7 +19,19 @@ def index(request):
 
 @api_view(['GET', 'POST', 'DELETE'])
 def currency_formats_list(request):
-    # GET list of currency, POST a new currency, DELETE all currency formats
+    """
+    Endpoint returns list of open orders
+    ---
+    parameters:
+        - name: parameter_a
+          description: Description for parameter a
+          required: true
+          paramType: path
+        - name: parameter_b
+          description: Description for parameter b
+          required: true
+          paramType: path
+    """
 
     if request.method == 'GET':
         currencyAllData = CurrencyFormat.objects.all()

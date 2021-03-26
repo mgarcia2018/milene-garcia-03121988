@@ -10,7 +10,7 @@
   {% if currency_list %}
   <ul>
     {% for currency in currency_list %}
-    <li><a href="/currencyFormats/{{ currency.id }}/">{{ currency.country_name }}</a></li>
+    <li><a href="api/currencyFormats/{{ currency.id }}">{{ currency.country_name }}</a></li>
     {% endfor %}
   </ul>
   {% else %}

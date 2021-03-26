@@ -17,8 +17,14 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls import url, include
 
+from rest_framework.schemas import get_schema_view
+
 
 urlpatterns = [
-    url(r'^currency/', include('currency_formats.urls')),
+    path('openapi', get_schema_view(
+        title="CRUD Currency Formats",
+        description="API for crud currency formats"
+    ), name='openapi-schema'),
+    url(r'^', include('currency_formats.urls')),
     path('admin/', admin.site.urls),
 ]
