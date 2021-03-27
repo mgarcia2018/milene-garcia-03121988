@@ -5,7 +5,6 @@ from . import views
 
 app_name = 'currencyFormats'
 urlpatterns = [
-    path('', views.index, name='index'),
     url(r'^api/currencyFormats/list$', views.list_currency_format),
     url(r'^api/currencyFormats/create$', views.create_currency_format),
     url(r'^api/currencyFormats/delete$', views.delete_all_currency_format),
@@ -15,5 +14,7 @@ urlpatterns = [
         views.update_currency_format),
     url(r'^api/currencyFormats/delete/(?P<pk>[0-9]+)$',
         views.delete_currency_format),
-    url(r'^api/currencyFormats/countries$', views.currency_by_country)
+    url(r'^api/currencyFormats/countries$', views.currency_by_country),
+    url(r'^api/advertise/list$', views.list_advertise),
+    url(r'^api/advertise/create$', views.create_advertise)
 ]

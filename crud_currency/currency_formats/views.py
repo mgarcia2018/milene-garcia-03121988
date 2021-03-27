@@ -4,17 +4,14 @@ from django.http.response import JsonResponse
 from rest_framework.parsers import JSONParser
 from rest_framework import status
 
-from .models import CurrencyFormat
-from .serializers import CurrencyFormatSerializer
+from .models import Advertise, Country, CurrencyFormat
+from .serializers import CountrySerializer, CurrencyFormatSerializer, AdvertiseSerializer
 from rest_framework.decorators import api_view
 
+import locale
+from decimal import Decimal
+
 # Create your views here.
-
-
-def index(request):
-    currency_list = CurrencyFormat.objects.order_by('country_name')[:5]
-    context = {'currency_list': currency_list}
-    return render(request, 'currencyFormats/index.html', context)
 
 
 @api_view(['GET', ])
@@ -31,7 +28,7 @@ def list_currency_format(request):
 
     currencyAllData = CurrencyFormat.objects.all()
 
-    country = request.GET.get('country_name', None)
+    country = request.GET.get('country', None)
     if country is not None:
         currencyAllData = currencyAllData.filter(
             country_name__icontains=country)
@@ -47,7 +44,7 @@ def create_currency_format(request):
 
     Parameters:
         - name: request
-          description: Json object e.x: {"id": 1, "display_simbol": true, "currency_before": true, "show_cents": true, "thousand_delimiter": ".", "decimal_delimiter": ",", "country_name": "Cuba", "country_currency": "CUP", "symbol": "$"}
+          description: Json object e.x: {"display_simbol": True, "currency_before": True, "show_cents": True, "thousand_delimiter": ".", "decimal_delimiter": ",", "country_name": "Cuba", "country_currency": "CUP", "symbol": "$"}
           required: true
           paramType: Json Object
     """
@@ -120,3 +117,109 @@ def currency_by_country(request, country):
     if request.method == 'GET':
         currency_serializer = CurrencyFormatSerializer(currency, many=True)
         return JsonResponse(currency_serializer.data, safe=False)
+
+
+@api_view(['GET', ])
+def list_advertise(request):
+    """
+    API Endpoint that return a advertise by name
+
+    """
+
+    advertises = Advertise.objects.all()
+
+    name = request.GET.get('name', None)
+    if name is not None:
+        advertises = advertises.filter(
+            name__icontains=name)
+
+    advertise_serializer = AdvertiseSerializer(advertises, many=True)
+    return JsonResponse(advertise_serializer.data, safe=False)
+
+
+@api_view(['POST', ])
+def create_advertise(request):
+    """
+    API Endpoint for create an advertise
+
+    Parameters:
+        - name: value
+          description: Value of de advertise
+          required: true
+          paramType: Decimal
+        - name: countryName
+          description: Country name
+          required: true
+          paramType: String
+        - name: countryCurrency
+          description: Country currency
+          required: true
+          paramType: String
+    """
+
+    myJson = JSONParser().parse(request)
+
+    countryName = myJson['countryName']
+    countryCurrency = myJson['countryCurrency']
+    value = Decimal(myJson['value'])
+
+    currency = CurrencyFormat.objects.get(
+        country_name=countryName, country_currency=countryCurrency)
+
+    saved = locale.getlocale()
+
+    locale.setlocale(locale.LC_MONETARY, '')
+
+    if currency is not None:
+
+        if currency.thousand_delimiter is not None:
+            locale._override_localeconv["mon_thousands_sep"] = currency.thousand_delimiter
+
+        if currency.decimal_delimiter is not None:
+            locale._override_localeconv["mon_decimal_point"] = currency.decimal_delimiter
+            locale._override_localeconv["decimal_point"] = currency.decimal_delimiter
+
+        if currency.show_cents == False:
+            locale._override_localeconv["frac_digits"] = 0
+            locale._override_localeconv["int_frac_digits"] = 0
+
+        if currency.display_simbol == True:
+            locale._override_localeconv["currency_symbol"] = currency.symbol
+            locale._override_localeconv["int_curr_symbol"] = currency.symbol
+
+        else:
+            locale._override_localeconv["currency_symbol"] = currency.country_currency
+            locale._override_localeconv["int_curr_symbol"] = currency.country_currency
+
+        locale._override_localeconv["p_cs_precedes"] = currency.currency_before
+
+        formatValue = locale.currency(value)
+
+        locale.setlocale(locale.LC_TIME, saved)
+
+        advertise_data = {"name": "Advertise_" + countryName,
+                          "base_currency": countryCurrency, "value": value, "valueText": formatValue}
+        advertise_serializer = AdvertiseSerializer(data=advertise_data)
+        if advertise_serializer.is_valid():
+            advertise_serializer.save()
+            return JsonResponse({'result': 'Success', 'status': '201'})
+
+    return JsonResponse({'result': 'error', 'status': '400'})
+
+
+@api_view(['GET', ])
+def list_countries(request):
+    """
+    API Endpoint that return list of countries
+
+    """
+
+    countries = Country.objects.all()
+
+    name = request.GET.get('name', None)
+    if name is not None:
+        countries = countries.filter(
+            country_name__icontains=name)
+
+    country_serializer = CountrySerializer(countries, many=True)
+    return JsonResponse(country_serializer.data, safe=False)

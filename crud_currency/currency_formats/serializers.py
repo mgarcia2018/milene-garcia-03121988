@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CurrencyFormat
+from .models import Advertise, Country, CurrencyFormat
 
 
 class CurrencyFormatSerializer(serializers.ModelSerializer):
@@ -15,4 +15,27 @@ class CurrencyFormatSerializer(serializers.ModelSerializer):
                   'country_name',
                   'country_currency',
                   'symbol',
+                  )
+
+
+class AdvertiseSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Advertise
+        fields = ('id',
+                  'base_currency',
+                  'name',
+                  'value',
+                  'valueText'
+                  )
+
+
+class CountrySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Country
+        fields = ('id',
+                  'country_name',
+                  'country_currency',
+                  'country_code'
                   )
